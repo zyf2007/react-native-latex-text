@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",             
+    "module": "ESNext",             
+    "jsx": "react-jsx",             
+    "outDir": "./lib",              
+    "declaration": true,            
+    "declarationMap": false,        
+    "sourceMap": false,             
+    "strict": true,                 
+    "moduleResolution": "Node",     
+    "skipLibCheck": true,           
+    "esModuleInterop": true,        
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",                   
+    "paths": {
+      "@/*": ["src/*"]                 
+    },
+    "types": ["react", "react-native"] 
+  },
+  "include": [                         
+    "src/**/*",                        
+    "tex-svg.ts"                       
+  ],
+  "exclude": [                         
+    "node_modules",
+    "lib",                             
+    "example-app.tsx"                  
+  ]
+}

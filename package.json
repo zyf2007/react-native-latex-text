@@ -1,0 +1,45 @@
+{
+  "name": "react-native-latex-text",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/src/index.js",
+  "types": "./lib/src/index.d.ts", 
+    "exports": {                  
+    ".": {
+      "import": "./lib/src/index.js",
+      "require": "./lib/src/index.js",
+      "types": "./lib/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "mathjax",
+    "latex",
+    "formula",
+    "svg",
+    "math"
+  ],
+  "author": "hutao_zyf",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-svg": "*",
+    "react-native-webview": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/react-native-latex-text.git"
+  },
+  "dependencies": {
+    "@types/react": "^19.2.14"
+  },
+  "files": [
+    "lib/"    
+  ]
+}

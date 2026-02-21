@@ -1,0 +1,8 @@
+test.sh
+react-native-latex-text-1.0.0.tgz
+node_modules/
+*.log
+.DS_Store
+.env
+.env.local
+lib/
