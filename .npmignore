@@ -1,7 +1,7 @@
 example-app.tsx
 test.sh
 
-react-native-latex-text-1.0.0.tgz
+react-native-latex-text-1.0.*.tgz
 
 src/
 tex-svg.ts

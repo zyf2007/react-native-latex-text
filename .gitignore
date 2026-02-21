@@ -1,5 +1,5 @@
 test.sh
-react-native-latex-text-1.0.0.tgz
+react-native-latex-text-*.tgz
 node_modules/
 *.log
 .DS_Store

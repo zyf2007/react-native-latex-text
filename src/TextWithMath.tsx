@@ -303,7 +303,6 @@ export const MathText: React.FC<MathTextProps> = ({
         // 检查是否需要换行（文本中包含换行符）
         if (seg.type === 'text' && seg.content.includes('\\n')) {
           const parts = seg.content.split('\\n');
-          console.log(parts);
           parts.forEach((part, partIndex) => {
             if (partIndex > 0) {
               flushLine(); // 换行符处强制换行
