@@ -196,6 +196,3 @@ MathRenderer.ClearCache();
 
 MIT
 
----
-
-**Would you like me to generate a specific TypeScript example for a complex layout using this library?**
