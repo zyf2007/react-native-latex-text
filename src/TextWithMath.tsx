@@ -1,4 +1,4 @@
-// MathText.tsx
+// TextWithMath.tsx
 import { RenderResult } from './MathJaxRenderer';
 import { MathRenderer } from './GlobalMathRenderer';
 import React, { useCallback, useEffect, useState } from 'react';

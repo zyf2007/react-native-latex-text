@@ -1,6 +1,9 @@
 import { MathJaxRendererRef, RenderOptions, RenderResult } from "./MathJaxRenderer";
 import React from "react";
 
+// 调试开关 - 默认关闭
+const DEBUG_MATH_RENDERER = false;
+
 export class MathRenderer{
     private static mathJaxRef:React.RefObject<MathJaxRendererRef|null> | null = null;
     public static Init(ref:React.RefObject<MathJaxRendererRef|null>) {
@@ -14,7 +17,9 @@ export class MathRenderer{
     public static ClearCache() {
         if(this.mathJaxRef?.current){
             this.mathJaxRef.current.clearCache();
-            console.log('Cache cleared, size:', this.mathJaxRef.current.getCacheSize());
+            if (DEBUG_MATH_RENDERER) {
+                console.log('Cache cleared, size:', this.mathJaxRef.current.getCacheSize());
+            }
         }
     }
 }

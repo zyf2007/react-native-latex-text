@@ -1,4 +1,3 @@
-// MathJaxRenderer.tsx
 import { texSvgEncoded } from '../tex-svg';
 import React, {
   forwardRef,
@@ -10,6 +9,10 @@ import React, {
 } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
+
+// 调试开关 - 默认关闭
+const DEBUG_MATH_RENDERER = false;
+
 export interface RenderResult {
   svg: string;
   width: number;
@@ -23,17 +26,17 @@ export interface RenderOptions {
 
 export interface MathJaxRendererRef {
   render: (latex: string, onComplete: (result: RenderResult) => void, options?: RenderOptions) => void;
-  clearCache: (latex?: string, color?: string) => void;  // 修改：支持按颜色和公式清除缓存
+  clearCache: (latex?: string, color?: string) => void;
   getCacheSize: () => number;
   isReady: () => boolean;
 }
 
 interface MathJaxRendererProps {
   initialCache?: string[];
-  initialCacheColor?: string;  // 新增：预渲染缓存的默认颜色
+  initialCacheColor?: string;
   maxCacheSize?: number;
-  onRenderComplete?: (result: RenderResult, latex: string, color: string) => void;  // 修改：回调增加 color 参数
-  onRenderError?: (error: string, latex: string, color: string) => void;  // 修改：错误回调增加 color 参数
+  onRenderComplete?: (result: RenderResult, latex: string, color: string) => void;
+  onRenderError?: (error: string, latex: string, color: string) => void;
   onReady?: () => void;
 }
 
@@ -41,14 +44,14 @@ interface QueueItem {
   latex: string;
   onComplete: (result: RenderResult) => void;
   color: string;
-  cacheKey: string;  // 新增：缓存 key
+  cacheKey: string;
 }
 
 export const MathJaxRenderer = forwardRef<MathJaxRendererRef, MathJaxRendererProps>(
   (
     {
       initialCache = [],
-      initialCacheColor = 'black',  // 默认预渲染颜色为黑色
+      initialCacheColor = 'black',
       maxCacheSize = 100,
       onRenderComplete,
       onRenderError,
@@ -59,22 +62,15 @@ export const MathJaxRenderer = forwardRef<MathJaxRendererRef, MathJaxRendererPro
     const [ready, setReady] = useState(false);
     const scriptRef = useRef<string | null>(null);
     const webViewRef = useRef<WebView>(null);
-
-    // SVG 缓存 Map: key = `${latex}::${color}`, value = RenderResult
     const cacheRef = useRef<Map<string, RenderResult>>(new Map());
-
-    // 渲染队列
     const queueRef = useRef<QueueItem[]>([]);
-
-    // 当前正在渲染的项
     const currentRef = useRef<QueueItem | null>(null);
+    const [jaxReady, setJaxReady] = useState(false);
 
-    // 生成缓存 key 的辅助函数
     const getCacheKey = useCallback((latex: string, color: string): string => {
       return `${latex}::${color}`;
     }, []);
 
-    // 用来加载 MathJax 脚本的辅助函数
     const decodeBase64 = (base64: string) => {
       const binary = atob(base64);
       const bytes = new Uint8Array(binary.length);
@@ -83,8 +79,6 @@ export const MathJaxRenderer = forwardRef<MathJaxRendererRef, MathJaxRendererPro
       }
       return new TextDecoder().decode(bytes);
     };
-
-    const [jaxReady, setJaxReady] = useState(false);
 
     // 加载 MathJax 脚本
     useEffect(() => {
@@ -102,15 +96,19 @@ export const MathJaxRenderer = forwardRef<MathJaxRendererRef, MathJaxRendererPro
           scriptRef.current = content;
           setReady(true);
           onReady?.();
-          console.log('[MathJaxRenderer] MathJax Loaded')
+          if (DEBUG_MATH_RENDERER) {
+            console.log('[MathJaxRenderer] MathJax Loaded')
+          }
         } catch (err) {
-          console.error('Failed to load MathJax:', err);
+          if (DEBUG_MATH_RENDERER) {
+            console.error('Failed to load MathJax:', err);
+          }
         }
       };
       load();
     }, [onReady]);
 
-    // 预渲染 initialCache（使用 initialCacheColor 指定颜色）
+    // 预渲染 initialCache
     useEffect(() => {
       if (ready && initialCache.length > 0) {
         initialCache.forEach((latex) => {
@@ -188,17 +186,23 @@ window.addEventListener('message', (event) => {
 </html>`;
     }, []);
 
-    // 处理队列：发送下一个渲染请求
+    // 处理队列
     const processQueue = useCallback(() => {
-      console.log('[MathJaxRenderer] Process queue:', queueRef.current.length, "currentRef.current", currentRef.current?.cacheKey);
+      if (DEBUG_MATH_RENDERER) {
+        console.log('[MathJaxRenderer] Process queue:', queueRef.current.length, "currentRef.current", currentRef.current?.cacheKey);
+      }
       if (queueRef.current.length === 0) {
-        console.log('[MathJaxRenderer] Render Finished - Queue empty, no more items to process.');
+        if (DEBUG_MATH_RENDERER) {
+          console.log('[MathJaxRenderer] Render Finished - Queue empty, no more items to process.');
+        }
         return;
       }
 
       const next = queueRef.current.shift()!;
       currentRef.current = next;
-      console.log('[MathJaxRenderer] Injecting:', 'cacheKey:', next.cacheKey);
+      if (DEBUG_MATH_RENDERER) {
+        console.log('[MathJaxRenderer] Injecting:', 'cacheKey:', next.cacheKey);
+      }
       webViewRef.current?.injectJavaScript(`
         window.postMessage(JSON.stringify({
           type: 'render',
@@ -209,7 +213,7 @@ window.addEventListener('message', (event) => {
       `);
     }, []);
 
-    // 渲染方法（加入队列）
+    // 渲染方法
     const render = useCallback((
       latex: string,
       onComplete: (result: RenderResult) => void,
@@ -218,34 +222,47 @@ window.addEventListener('message', (event) => {
       const color = options?.color || 'black';
       const cacheKey = getCacheKey(latex, color);
 
-      console.log('[MathJaxRenderer] Cache check:', 'cacheKey:', cacheKey);
+      if (DEBUG_MATH_RENDERER) {
+        console.log('[MathJaxRenderer] Cache check:', 'cacheKey:', cacheKey);
+      }
 
-      // 检查缓存（现在按 latex + color 区分）
+      // 检查缓存
       if (cacheRef.current.has(cacheKey)) {
         const cached = cacheRef.current.get(cacheKey);
-        console.log('[MathJaxRenderer] Cache hit:', cacheKey, cached?.svg.slice(0, 25), '...');
+        if (DEBUG_MATH_RENDERER) {
+          console.log('[MathJaxRenderer] Cache hit:', cacheKey, cached?.svg.slice(0, 25), '...');
+        }
         onComplete(cached as RenderResult);
         onRenderComplete?.(cached as RenderResult, latex, color);
         return;
       }
 
-      console.log('[MathJaxRenderer] Cache miss:', cacheKey);
+      if (DEBUG_MATH_RENDERER) {
+        console.log('[MathJaxRenderer] Cache miss:', cacheKey);
+      }
 
-      // 加入队列（包含 cacheKey）
+      // 加入队列
       queueRef.current.push({ latex, onComplete, color, cacheKey });
-      console.log('[MathJaxRenderer] Queue pushed:', cacheKey);
+      if (DEBUG_MATH_RENDERER) {
+        console.log('[MathJaxRenderer] Queue pushed:', cacheKey);
+      }
 
       // 尝试处理队列
       if (!currentRef.current) {
-
         if (!jaxReady) {
-          console.log('[MathJaxRenderer] Not ready yet, waiting for MathJax to load.');
+          if (DEBUG_MATH_RENDERER) {
+            console.log('[MathJaxRenderer] Not ready yet, waiting for MathJax to load.');
+          }
           return;
         }
-        console.log('[MathJaxRenderer] Render Idle, start processing queue.');
+        if (DEBUG_MATH_RENDERER) {
+          console.log('[MathJaxRenderer] Render Idle, start processing queue.');
+        }
         processQueue();
       } else {
-        console.log('[MathJaxRenderer] Render Busy, waiting for:', queueRef.current.length);
+        if (DEBUG_MATH_RENDERER) {
+          console.log('[MathJaxRenderer] Render Busy, waiting for:', queueRef.current.length);
+        }
       }
 
     }, [onRenderComplete, processQueue, getCacheKey, jaxReady]);
@@ -253,7 +270,9 @@ window.addEventListener('message', (event) => {
     // 处理队列：MathJax 加载完成后延迟处理
     useEffect(() => {
       if (!currentRef.current && queueRef.current.length > 0 && jaxReady) {
-        console.log('[MathJaxRenderer] MathJax Ready, Start Processing queue:', queueRef.current.length);
+        if (DEBUG_MATH_RENDERER) {
+          console.log('[MathJaxRenderer] MathJax Ready, Start Processing queue:', queueRef.current.length);
+        }
         setTimeout(() => {
           processQueue();
         }, 5000);
@@ -264,7 +283,9 @@ window.addEventListener('message', (event) => {
     const handleMessage = useCallback((event: WebViewMessageEvent) => {
       try {
         const data = JSON.parse(event.nativeEvent.data);
-        console.log('[MathJaxRenderer] Message received:', data.type);
+        if (DEBUG_MATH_RENDERER) {
+          console.log('[MathJaxRenderer] Message received:', data.type);
+        }
         if (data.type === 'ready') {
           setJaxReady(true);
           return;
@@ -291,11 +312,15 @@ window.addEventListener('message', (event) => {
               cacheRef.current.delete(firstKey as string);
             }
             cacheRef.current.set(current.cacheKey, result);
-            console.log('[MathJaxRenderer] RenderFinished - Cache stored:', current.cacheKey, result.svg.slice(0, 15), '...');
+            if (DEBUG_MATH_RENDERER) {
+              console.log('[MathJaxRenderer] RenderFinished - Cache stored:', current.cacheKey, result.svg.slice(0, 15), '...');
+            }
             current.onComplete(result);
             onRenderComplete?.(result, current.latex, current.color);
           } else {
-            console.error('[MathJaxRenderer] RenderFailed:', data.error, current.latex, current.color);
+            if (DEBUG_MATH_RENDERER) {
+              console.error('[MathJaxRenderer] RenderFailed:', data.error, current.latex, current.color);
+            }
             onRenderError?.(data.error, current.latex, current.color);
           }
 
@@ -306,7 +331,9 @@ window.addEventListener('message', (event) => {
 
         }
       } catch (e) {
-        console.error('Failed to handle message:', e);
+        if (DEBUG_MATH_RENDERER) {
+          console.error('Failed to handle message:', e);
+        }
         currentRef.current = null;
         processQueue();
       }
@@ -321,9 +348,11 @@ window.addEventListener('message', (event) => {
             // 清除指定公式和颜色的缓存
             const cacheKey = getCacheKey(latex, color);
             cacheRef.current.delete(cacheKey);
-            console.log('[MathJaxRenderer] Cache cleared for:', cacheKey);
+            if (DEBUG_MATH_RENDERER) {
+              console.log('[MathJaxRenderer] Cache cleared for:', cacheKey);
+            }
           } else {
-            // 清除该公式所有颜色的缓存（遍历查找）
+            // 清除该公式所有颜色的缓存
             const keysToDelete: string[] = [];
             for (const key of cacheRef.current.keys()) {
               if (key.startsWith(`${latex}::`)) {
@@ -331,12 +360,16 @@ window.addEventListener('message', (event) => {
               }
             }
             keysToDelete.forEach(key => cacheRef.current.delete(key));
-            console.log('[MathJaxRenderer] Cache cleared for all colors of:', latex, 'count:', keysToDelete.length);
+            if (DEBUG_MATH_RENDERER) {
+              console.log('[MathJaxRenderer] Cache cleared for all colors of:', latex, 'count:', keysToDelete.length);
+            }
           }
         } else {
           // 清除所有缓存
           cacheRef.current.clear();
-          console.log('[MathJaxRenderer] All cache cleared');
+          if (DEBUG_MATH_RENDERER) {
+            console.log('[MathJaxRenderer] All cache cleared');
+          }
         }
       },
       getCacheSize: () => cacheRef.current.size,
@@ -374,5 +407,4 @@ const styles = StyleSheet.create({
 });
 
 MathJaxRenderer.displayName = 'MathJaxRenderer';
-
 export default MathJaxRenderer;

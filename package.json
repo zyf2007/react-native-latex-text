@@ -1,19 +1,26 @@
 {
   "name": "react-native-latex-text",
   "version": "1.0.0",
-  "description": "",
+  "description": "React Native/Expo LaTeX Formula Rendering Component, supports mixed typesetting of text and formulas, custom formula delimiters, automatic calculation of formula line height, based on MathJax SVG, built-in caching, no native dependencies. | React Native/Expo Latex 公式渲染组件，支持文字与公式混排/自定义公式分隔符，自动计算公式行高，基于 MathJax SVG，内置缓存，无原生依赖。",
   "main": "./lib/src/index.js",
-  "types": "./lib/src/index.d.ts", 
-    "exports": {                  
+  "types": "./lib/src/index.d.ts",
+  "exports": {
     ".": {
       "import": "./lib/src/index.js",
       "require": "./lib/src/index.js",
       "types": "./lib/src/index.d.ts"
+    },
+    "./tex-svg": {
+      "import": "./lib/tex-svg.js",
+      "require": "./lib/tex-svg.js",
+      "types": "./lib/tex-svg.d.ts"
     }
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build && npm test",
+    "test": "echo \"No tests specified yet\" && exit 0"
   },
   "keywords": [
     "react-native",
@@ -22,24 +29,47 @@
     "latex",
     "formula",
     "svg",
-    "math"
+    "math",
+    "mathematics",
+    "renderer"
   ],
   "author": "hutao_zyf",
   "license": "MIT",
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*",
-    "react-native-svg": "*",
-    "react-native-webview": "*"
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0",
+    "react-native-svg": ">=12.0.0",
+    "react-native-webview": ">=11.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-webview": {
+      "optional": false
+    },
+    "react-native-svg": {
+      "optional": false
+    }
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/react-native-latex-text.git"
+    "url": "https://github.com/zyf2007/react-native-latex-text.git"
   },
   "dependencies": {
     "@types/react": "^19.2.14"
   },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/react-native": "^0.72.0"
+  },
   "files": [
-    "lib/"    
-  ]
+    "lib/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
 }
