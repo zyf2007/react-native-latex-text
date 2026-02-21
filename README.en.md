@@ -4,6 +4,7 @@
 
 A lightweight, high-performance React Native component supporting mixed text and LaTeX rendering. It features custom delimiters, automatic line height calculation, and is based on MathJax SVG with built-in caching and zero native dependencies (available in Expo Go).
 
+![渲染效果](./mathrender.gif)
 ---
 
 ## How It Works?
@@ -64,7 +65,6 @@ import { MathText } from 'react-native-latex-text';
 />
 
 ```
-
 ---
 
 ## Features

@@ -3,6 +3,7 @@
 
 一个轻量、高性能的 React Native 组件，支持文字与 Latex 公式混排/自定义公式分隔符，自动计算公式行高，基于 MathJax SVG，内置缓存，无原生依赖（可直接在 Expo Go 中运行）。
 
+![渲染效果](./mathrender.gif)
 # How It Works?
 MathJaxRenderer 组件会在根节点创建一个隐藏的 1*1 的 WebView 组件，用于加载 MathJax 库和渲染公式，并通过 postMessage 将 svg-xml 字符串返回给 React Native，并使用原生组件实现高性能渲染。
 因此，这种渲染方式不依赖任何原生组件，可以直接在 Expo Go 中运行。  
@@ -48,7 +49,7 @@ import { MathText } from 'react-native-latex-text';
   textColor='#FFFFFF'
 />
 ```
-![渲染效果](./mathrender.gif)
+
 
 ## 特性
 - 🚀 **高性能**：内置公式缓存机制，避免重复渲染
