@@ -128,10 +128,10 @@ The component used to display mixed content.
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `content` | `string` | - | Text containing LaTeX (Required). |
-| `style` | `TextStyle` | - | Style for the regular text. |
-| `mathStyle` | `ViewStyle` | - | Container style for the formulas. |
+| `viewStyle` | `ViewStyle` | - | Style for the container view. |
+| `lineStyle` | `ViewStyle` | - | Style for each line. |
 | `textColor` | `string` | `#000000` | Text color. |
-| `mathColor` | `string` | `textColor` | Formula color. |
+| `fontSize` | `number` | `16` | Text font size. |
 | `baseMathSize` | `number` | `10` | Scale multiplier for formula rendering. |
 | `lineHeight` | `number` | `1.5` | Global line height. |
 | `delimiters` | `Object` | (See below) | Custom formula delimiters. |

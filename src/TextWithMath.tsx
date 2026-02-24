@@ -13,14 +13,12 @@ import { SvgXml } from 'react-native-svg';
 
 export interface MathTextProps {
   content: string;
-  style?: TextStyle;
-  mathStyle?: ViewStyle;
+  viewStyle?: ViewStyle;
+  lineStyle?: ViewStyle;
   textColor?: string;
-  mathColor?: string;
+  fontSize?: number;
   baseMathSize?: number;
-  lineHeight?: number;      
-  textLineHeight?: number;  
-  mathLineHeight?: number;  
+  lineHeight?: number;
   delimiters?: {
     inline: { left: string; right: string }[];
     display: { left: string; right: string }[];
@@ -70,25 +68,21 @@ interface MathItem {
 
 export const MathText: React.FC<MathTextProps> = ({
   content,
-  style,
-  mathStyle,
+  viewStyle,
+  lineStyle,
   textColor = '#000000',
-  mathColor,
+  fontSize = 16,
   baseMathSize = 10,
   lineHeight = 1.5,
-  textLineHeight,
-  mathLineHeight,
   delimiters = DEFAULT_DELIMITERS,
 }) => {
-  const finalMathColor = mathColor || textColor;
-  const finalTextLineHeight = textLineHeight || lineHeight;
-  const finalMathLineHeight = mathLineHeight || lineHeight;
+  const finalMathColor = textColor;
+  const finalTextLineHeight = lineHeight;
+  const finalMathLineHeight = lineHeight;
   
   const [mathItems, setMathItems] = useState<Map<string, MathItem>>(new Map());
   const regex = React.useMemo(() => buildRegex(delimiters), [delimiters]);
 
-  // 获取字体大小（从 style 或默认）
-  const fontSize = style?.fontSize || 16;
   
   // 计算实际行高（像素值）
   const textLineHeightValue = fontSize * finalTextLineHeight;
@@ -208,7 +202,6 @@ export const MathText: React.FC<MathTextProps> = ({
               fontSize,
               lineHeight: textLineHeightValue,
             }, 
-            style
           ]}
         >
           {seg.content}
@@ -225,7 +218,6 @@ export const MathText: React.FC<MathTextProps> = ({
           key={`math-${index}`} 
           style={[
             styles.mathPlaceholder,
-            mathStyle,
             !seg.display && { height: fontSize * 0.8 } // 行内占位高度
           ]}
         >
@@ -247,7 +239,6 @@ export const MathText: React.FC<MathTextProps> = ({
         style={[
           {    justifyContent: 'center',alignItems: 'center',},
           !seg.display && {height: mathLineHeightValue*height*0.45,},
-          mathStyle
         ]}
       >
         <SvgXml
@@ -271,7 +262,8 @@ export const MathText: React.FC<MathTextProps> = ({
             key={`line-${lineIndex}`} 
             style={[
               styles.line,
-              { minHeight: textLineHeightValue }  // 确保行高一致
+              { minHeight: textLineHeightValue }
+              ,lineStyle
             ]}
           >
             {currentLine}
@@ -317,7 +309,6 @@ export const MathText: React.FC<MathTextProps> = ({
                       fontSize,
                       lineHeight: textLineHeightValue,
                     }, 
-                    style
                   ]}
                 >
                   {part}
@@ -336,7 +327,7 @@ export const MathText: React.FC<MathTextProps> = ({
   };
 
   return (
-    <View style={{flexDirection: 'column'}}>
+    <View style={{flexDirection: 'column',...viewStyle}}>
       {renderAll()}
     </View>
   );

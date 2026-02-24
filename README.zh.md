@@ -114,14 +114,12 @@ yarn add react-native-latex-text
 | 属性 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `content` | `string` | - | 包含公式的文本内容（必填） |
-| `style` | `TextStyle` | - | 普通文本样式 |
-| `mathStyle` | `ViewStyle` | - | 公式容器样式 |
+| `viewStyle` | `ViewStyle` | - | 容器样式 |
+| `lineStyle` | `ViewStyle` | - | 行样式(单行居中常用) |
 | `textColor` | `string` | `#000000` | 普通文本颜色 |
-| `mathColor` | `string` | 同 textColor | 公式颜色 |
+| `fontSize` | `number` | `16` | 普通文本字体大小 |
 | `baseMathSize` | `number` | `10` | 公式渲染大小放大倍率 |
 | `lineHeight` | `number` | `1.5` | 全局行高（文本+公式） |
-| `textLineHeight` | `number` | 同 lineHeight | 文本单独行高 |
-| `mathLineHeight` | `number` | 同 lineHeight | 公式单独行高 |
 | `delimiters` | `{ inline: {left, right}[], display: {left, right}[] }` | 见下方默认值 | 公式分隔符配置 |
 
 #### 默认分隔符
