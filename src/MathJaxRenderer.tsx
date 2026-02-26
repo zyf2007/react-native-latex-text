@@ -1,4 +1,4 @@
-import { texSvgEncoded } from '../tex-svg';
+import { texSvg } from '../tex-svg';
 import React, {
   forwardRef,
   useCallback,
@@ -71,14 +71,7 @@ export const MathJaxRenderer = forwardRef<MathJaxRendererRef, MathJaxRendererPro
       return `${latex}::${color}`;
     }, []);
 
-    const decodeBase64 = (base64: string) => {
-      const binary = atob(base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-      }
-      return new TextDecoder().decode(bytes);
-    };
+
 
     // 加载 MathJax 脚本
     useEffect(() => {
@@ -87,9 +80,9 @@ export const MathJaxRenderer = forwardRef<MathJaxRendererRef, MathJaxRendererPro
           let content: string;
 
           if (Platform.OS === 'android') {
-            content = decodeBase64(texSvgEncoded);
+            content = texSvg;
           } else if (Platform.OS === 'ios') {
-            content = decodeBase64(texSvgEncoded);
+            content = texSvg;
           } else {
             throw new Error('Unsupported platform');
           }
